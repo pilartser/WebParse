@@ -1,0 +1,7 @@
+D:\Documents\Workspace\Test_projects\WebParse\WebParse\bin\Debug\WebParse.exe
+D:\Documents\Workspace\Test_projects\WebParse\WebParse\bin\Debug\WebParse.pdb
+D:\Documents\Workspace\Test_projects\WebParse\WebParse\obj\x86\Debug\WebParse.exe
+D:\Documents\Workspace\Test_projects\WebParse\WebParse\obj\x86\Debug\WebParse.pdb
+D:\Documents\Workspace\Test_projects\WebParse\WebParse\bin\Debug\HtmlAgilityPack.dll
+D:\Documents\Workspace\Test_projects\WebParse\WebParse\obj\x86\Debug\WebParse.csprojResolveAssemblyReference.cache
+D:\Documents\Workspace\Test_projects\WebParse\WebParse\bin\Debug\WebParse.exe.config

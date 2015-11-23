@@ -16,11 +16,11 @@ namespace WebParse
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(Routines.GetProxyFromBitmap("http://hideme.ru/images/proxylist_port_16127288.gif"));
-            
+            //Console.WriteLine(Routines.GetProxyFromBitmap("http://hideme.ru/images/proxylist_port_16127288.gif"));
+            ProxyList pl = new ProxyList();
             
 
-            //HtmlDocument doc = Routines.GetDoc("http://www.lostfilm.tv/browse.php?cat=119");
+            //HtmlDocument doc = Routines.GetShowInfoDoc("http://www.lostfilm.tv/browse.php?cat=119");
             //foreach (TVShow show in GetSerialList())
             //{
             //    show.LoadInfo();

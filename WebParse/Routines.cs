@@ -46,15 +46,11 @@ namespace WebParse
                 return 0;
         }
 
-        internal static HtmlDocument GetDoc(string url)
+        internal static HtmlDocument GetDoc(string url, Boolean isUseProxy = false)
         {
             HtmlDocument doc = new HtmlDocument();
             doc.OptionWriteEmptyNodes = true;
-            doc.LoadHtml(GetStreamString(url, false));
-            if (doc.DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[img]/div/p[@align=\"left\"]") != null)
-            {
-                doc.LoadHtml(GetStreamString(url, true));
-            }
+            doc.LoadHtml(GetStreamString(url, isUseProxy));
             foreach (HtmlNode brNode in doc.DocumentNode.SelectNodes("//br"))
             {
                 brNode.Remove();
@@ -63,11 +59,36 @@ namespace WebParse
             return doc;
         }
 
+        internal static HtmlDocument GetShowInfoDoc(string url)
+        {
+            HtmlDocument doc = GetDoc(url);
+            if (doc.DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[img]/div/p[@align=\"left\"]") != null) //Плашка "Залочено на территории РФ" в инфе сериала
+            {
+                doc = GetDoc(url, true);
+            }
+            return doc;
+        }
+
         internal static Stream GetStream(string url, Boolean isUseProxy = false)
         {
+            /*HttpWebRequest myRequest = (HttpWebRequest)WebRequest.Create(url);
+            myRequest.CookieContainer = new CookieContainer();
+            myRequest.CookieContainer.Add(new Cookie("__utma", "27137956.1295951341.1448268557.1448268557.1448268557.1", "/", ".hideme.ru"));
+            myRequest.CookieContainer.Add(new Cookie("__utmb", "27137956.2.9.1448270854583", "/", ".hideme.ru"));
+            myRequest.CookieContainer.Add(new Cookie("__utmc", "27137956", "/", ".hideme.ru"));
+            myRequest.CookieContainer.Add(new Cookie("__utmz", "27137956.1447224364.5.4.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided)", "/", ".hideme.ru"));
+            myRequest.CookieContainer.Add(new Cookie("_ym_isad", "1", "/", ".hideme.ru"));
+            myRequest.CookieContainer.Add(new Cookie("_ym_uid", "1448270861172438361", "/", ".hideme.ru"));
+            myRequest.CookieContainer.Add(new Cookie("jv_enter_ts_PeHzjrJoSL", "1448270860901", "/", ".hideme.ru"));
+            myRequest.CookieContainer.Add(new Cookie("jv_gui_state_PeHzjrJoSL", "WIDGET", "/", ".hideme.ru"));
+            myRequest.CookieContainer.Add(new Cookie("jv_invitation_time_PeHzjrJoSL", "1448270854578", "/", ".hideme.ru"));
+            myRequest.CookieContainer.Add(new Cookie("jv_pages_count_PeHzjrJoSL", "1", "/", ".hideme.ru"));
+            myRequest.CookieContainer.Add(new Cookie("jv_refer_PeHzjrJoSL", "http%3A%2F%2Fhideme.ru%2Fproxy-list%2F%3Fcountry%3DUA%26maxtime%3D400%26type%3Dh", "/", ".hideme.ru"));
+            myRequest.CookieContainer.Add(new Cookie("jv_visits_count_PeHzjrJoSL", "1", "/", ".hideme.ru"));
+            myRequest.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.121 Safari/535.2";*/
             System.Net.WebRequest myRequest = WebRequest.Create(url);
             if (isUseProxy)
-                myRequest.Proxy = new WebProxy("http://37.53.91.4:3129");
+                myRequest.Proxy = new WebProxy("http://195.138.78.222:8080"/*"http://37.53.91.4:3129"*/);
             WebResponse myResponse = myRequest.GetResponse();
             return myResponse.GetResponseStream();
         }

@@ -29,9 +29,19 @@ namespace WebParse
 
         public void LoadInfo()
         {
-            HtmlDocument doc = Routines.GetDoc(String.Format("http://www.lostfilm.tv/browse.php?cat={0}", this.Id));
+            HtmlDocument doc = Routines.GetShowInfoDoc(String.Format("http://www.lostfilm.tv/browse.php?cat={0}", this.Id));
             HtmlNode node = doc.DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[img]");
             this.ReliseYear = Routines.GetInt(Constants.reParams["relise_year"].Match(node.InnerHtml).Value);
+        }
+    }
+
+    class ProxyList
+    {
+        public ProxyList()
+        {
+            HtmlDocument doc = Routines.GetDoc(String.Format(Constants.CONST_PROXY_LIST_TEMPLATE, "UA"));
+            foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//html/body/table[@cellspacing=\"0\"]/tr/td/table/tr[td/font[@class=\"spy1\"]/text()=\"HTTP\"]"))
+                Console.WriteLine(node.InnerHtml + "\r\n");
         }
     }
 
@@ -39,6 +49,7 @@ namespace WebParse
     {
         internal const string CONST_LOSTFILM_SERIAL_LIST = "http://www.lostfilm.tv/serials.php";
         internal const string CONST_LOSTFILM_RSS = "http://www.lostfilm.tv/rssdd.xml";
+        internal const string CONST_PROXY_LIST_TEMPLATE = "http://spys.ru/proxys/{0}";
 
         internal static readonly Dictionary<string, Regex> reParams = new Dictionary<string, Regex>()
         {

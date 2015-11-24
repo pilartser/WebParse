@@ -14,18 +14,19 @@ namespace WebParse
 {
     class Program
     {
+        public static ProxyList pl;
+
         static void Main(string[] args)
         {
             //Console.WriteLine(Routines.GetProxyFromBitmap("http://hideme.ru/images/proxylist_port_16127288.gif"));
-            ProxyList pl = new ProxyList();
-            
-
+            pl = new ProxyList();
             //HtmlDocument doc = Routines.GetShowInfoDoc("http://www.lostfilm.tv/browse.php?cat=119");
-            //foreach (TVShow show in GetSerialList())
-            //{
-            //    show.LoadInfo();
-            //    Console.WriteLine(String.Format("ID: {0}\r\nName Original: {1}\r\nName Translated: {2}\r\nRelise Year: {3}", show.Id, show.NameOriginal, show.NameTranslated, show.ReliseYear));
-            //}
+            //Console.WriteLine(doc.DocumentNode.InnerHtml);
+            foreach (TVShow show in GetSerialList())
+            {
+                show.LoadInfo();
+                Console.WriteLine(String.Format("ID: {0}\r\nName Original: {1}\r\nName Translated: {2}\r\nRelise Year: {3}", show.Id, show.NameOriginal, show.NameTranslated, show.ReliseYear));
+            }
             Console.WriteLine("It's ALL!!!");
             Console.ReadKey();
         }

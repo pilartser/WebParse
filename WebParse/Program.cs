@@ -25,7 +25,8 @@ namespace WebParse
             foreach (TVShow show in GetSerialList())
             {
                 show.LoadInfo();
-                Console.WriteLine(String.Format("ID: {0}\r\nName Original: {1}\r\nName Translated: {2}\r\nRelise Year: {3}", show.Id, show.NameOriginal, show.NameTranslated, show.ReliseYear));
+                Console.WriteLine(String.Format("ID: {0}\r\nName Original: {1}\r\nName Translated: {2}\r\nRelise Year: {3}\r\n-----------------------", 
+                                                show.Id, show.NameOriginal, show.NameTranslated, show.ReliseYear));
             }
             Console.WriteLine("It's ALL!!!");
             Console.ReadKey();
@@ -33,7 +34,7 @@ namespace WebParse
 
         static IEnumerable<TVShow> GetSerialList()
         {
-            HtmlNode node = Routines.GetDoc(Constants.CONST_LOSTFILM_SERIAL_LIST).DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[@class=\"bb\"]");
+            HtmlNode node = Connection.GetDoc(Constants.CONST_LOSTFILM_SERIAL_LIST).DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[@class=\"bb\"]");
             foreach (HtmlNode serial in node.SelectNodes("a"))
             {
                 Int64 id = Routines.GetInt64(System.Web.HttpUtility.ParseQueryString(serial.GetAttributeValue("href", "").Replace("?", "&")).Get("cat"));

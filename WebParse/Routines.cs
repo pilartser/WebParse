@@ -46,91 +46,10 @@ namespace WebParse
                 return 0;
         }
 
-        internal static HtmlDocument GetDoc(string url, Boolean isUseProxy = false)
-        {
-            HtmlDocument doc = new HtmlDocument();
-            doc.OptionWriteEmptyNodes = true;
-            string html = GetStreamString(url, isUseProxy);
-            if (html != "")
-            {
-                doc.LoadHtml(html);
-                foreach (HtmlNode brNode in doc.DocumentNode.SelectNodes("//br"))
-                {
-                    brNode.Remove();
-                }
-
-                return doc;
-            }
-            else
-                return null;
-        }
-
-        internal static HtmlDocument GetShowInfoDoc(string url)
-        {
-            HtmlDocument doc = GetDoc(url);
-            if (doc.DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[img]/div/p[@align=\"left\"]") != null) //Плашка "Залочено на территории РФ" в инфе сериала
-            {
-                doc = GetDoc(url, true);
-            }
-            return doc;
-        }
-
-        internal static Stream GetStream(string url, Boolean isUseProxy = false)
-        {
-            int tryCount = 0;
-            while (tryCount < 15)
-            {
-                try
-                {
-                    System.Net.WebRequest myRequest = WebRequest.Create(url);
-                    if (isUseProxy)
-                    {
-                        string address = (tryCount==0)?Program.pl.GetCurrentAddress():Program.pl.GetNextAddress();
-                        if (address != "")
-                        {
-                            Console.WriteLine(String.Format("Use proxy address: {0}", address));
-                            myRequest.Proxy = new WebProxy(address);
-                        }
-                        else
-                            return null;
-                    }
-                    WebResponse myResponse = myRequest.GetResponse();
-                    return myResponse.GetResponseStream();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-                finally
-                {
-                    tryCount += 1;
-                }
-            }
-            Console.WriteLine("!!!Connection failed!!!");
-            return null;
-        }
-
-        internal static string GetStreamString(string url, Boolean isUseProxy = false)
-        {
-            Stream str = GetStream(url, isUseProxy);
-            try
-            {
-                if (str != null)
-                    return new StreamReader(str, Encoding.GetEncoding(1251)).ReadToEnd();
-            }
-            catch(Exception e)
-            {
-                Program.pl.GetNextAddress();
-                Console.WriteLine(e.Message);
-                return "";
-            }
-            return "";
-        }
-
         internal static string GetProxyFromBitmap(string url)
         {
             string result = "";
-            Bitmap proxyGif = new Bitmap(Routines.GetStream(url));
+            Bitmap proxyGif = new Bitmap(Connection.GetStream(url));
             for (int i = 0; i < 5; i++)
             {
                 using (Bitmap digit = proxyGif.Clone(new Rectangle(0 + i * 6, 3, 5, 8), proxyGif.PixelFormat))

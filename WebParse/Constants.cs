@@ -15,8 +15,8 @@ namespace WebParse
         public string NameOriginal;
         public string NameTranslated = "";
         public int ReliseYear = 0;
-        public List<string> Country;
-        public List<string> Genre;
+        public List<string> Countries;
+        public List<string> Genres;
         public Boolean isOpen;
 
         public TVShow(Int64 idShow, string nameShow, string nameTranslated)
@@ -24,8 +24,8 @@ namespace WebParse
             Id = idShow;
             NameOriginal = nameShow;
             NameTranslated = nameTranslated;
-            Country = new List<string> {};
-            Genre = new List<string> {};
+            Countries = new List<string> {};
+            Genres = new List<string> {};
             isOpen = true;
         }
 
@@ -34,9 +34,45 @@ namespace WebParse
             HtmlDocument doc = Connection.GetShowInfoDoc(String.Format("http://www.lostfilm.tv/browse.php?cat={0}", this.Id));
             if (doc != null)
             {
-                HtmlNode node = doc.DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[img]");
-                this.ReliseYear = Routines.GetInt(Constants.reParams["relise_year"].Match(node.InnerHtml).Value);
+                try
+                {
+                    HtmlNode node = doc.DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[img]");
+                    this.ReliseYear = Routines.GetInt(Constants.reParams["reliseYear"].Match(node.InnerHtml).Value);
+                    foreach (String country in Constants.reParams["countrySplit"].
+                                                Split(Constants.reParams["country"].Match(node.InnerHtml).Value).
+                                                Select(c => c.Trim()))
+                    {
+                        this.Countries.Add(country);
+                    }
+                    foreach (String genre in Constants.reParams["genreSplit"].
+                                                Split(Constants.reParams["genre"].Match(node.InnerHtml).Value).
+                                                Select(g => g.Trim()).Where(s => (s != String.Empty)))
+                    {
+                        this.Genres.Add(genre);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
             }
+        }
+
+        public void PrintInfo()
+        {
+            Console.WriteLine(String.Format("ID: {0}\r\nName Original: {1}\r\nName Translated: {2}\r\nRelise Year: {3}",
+                                                this.Id, this.NameOriginal, this.NameTranslated, this.ReliseYear));
+            Console.Write(String.Format("Countries: {0}", (this.Countries.Count == 0)?"\r\n":""));
+            for (int i = 0; i < this.Countries.Count; i++)
+            {
+                Console.WriteLine(String.Format("{0}{1}", "".PadLeft((i == 0) ? 0 : 11), this.Countries.ElementAt(i)));
+            }
+            Console.Write(String.Format("Genres: {0}", (this.Genres.Count == 0)?"\r\n":""));
+            for (int i = 0; i < this.Genres.Count; i++)
+            {
+                Console.WriteLine(String.Format("{0}\"{1}\"", "".PadLeft((i == 0) ? 0 : 8), this.Genres.ElementAt(i)));
+            }
+            Console.WriteLine("-----------------------");
         }
     }
 
@@ -70,9 +106,11 @@ namespace WebParse
         internal static readonly Dictionary<string, Regex> reParams = new Dictionary<string, Regex>()
         {
             {"country", new Regex(@"((?<=^\tСтрана: )[A-Za-zА-Яа-я ,\/]+(?=\.\r$|\r$))", RegexOptions.Multiline)},
-            {"relise_year", new Regex(@"((?<=^\tГод выхода: <span>)\d{4})", RegexOptions.Multiline)},
-            {"genre", new Regex(@"((?<=^\tЖанр: <span>)[A-Za-zА-Яа-я ,\/]+(?=</span>))", RegexOptions.Multiline)},
-            {"status", new Regex(@"((?<=^\tСтатус: )[A-Za-zА-Яа-я ,\/]+(?=\r$))", RegexOptions.Multiline)}
+            {"reliseYear", new Regex(@"((?<=^\tГод выхода: <span>)\d{4})", RegexOptions.Multiline)},
+            {"genre", new Regex(@"((?<=^\tЖанр: <span>)[A-Za-zА-Яа-я ,\/\.]+(?=</span>))", RegexOptions.Multiline)},
+            {"status", new Regex(@"((?<=^\tСтатус: )[A-Za-zА-Яа-я ,\/]+(?=\r$))", RegexOptions.Multiline)},
+            {"countrySplit", new Regex(@"(?:(?:,)|(?:/))")},
+            {"genreSplit", new Regex(@"(?:(?:,)|(?:/)|(?:\.))")}
         };
     }
 }

@@ -22,11 +22,11 @@ namespace WebParse
             pl = new ProxyList();
             //HtmlDocument doc = Routines.GetShowInfoDoc("http://www.lostfilm.tv/browse.php?cat=119");
             //Console.WriteLine(doc.DocumentNode.InnerHtml);
+            
             foreach (TVShow show in GetSerialList())
             {
                 show.LoadInfo();
-                Console.WriteLine(String.Format("ID: {0}\r\nName Original: {1}\r\nName Translated: {2}\r\nRelise Year: {3}\r\n-----------------------", 
-                                                show.Id, show.NameOriginal, show.NameTranslated, show.ReliseYear));
+                show.PrintInfo();
             }
             Console.WriteLine("It's ALL!!!");
             Console.ReadKey();
@@ -38,7 +38,7 @@ namespace WebParse
             foreach (HtmlNode serial in node.SelectNodes("a"))
             {
                 Int64 id = Routines.GetInt64(System.Web.HttpUtility.ParseQueryString(serial.GetAttributeValue("href", "").Replace("?", "&")).Get("cat"));
-                string NameOriginal = serial.SelectSingleNode("span").InnerText.TrimStart('(').TrimEnd(')');
+                string NameOriginal = serial.SelectSingleNode("span").InnerText.Trim(new char[] {'(', ')'});
                 string NameTranslated = serial.SelectSingleNode("text()").InnerText;
                 yield return new TVShow(id, NameOriginal, NameTranslated);
             }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
 
@@ -26,7 +27,7 @@ namespace WebParse
         {
             Console.WriteLine("Proxy list refreshed!");
             String proxyPage = Connection.GetStreamString(Constants.CONST_PROXY_LIST_TEMPLATE);
-            Regex reProxies = new Regex(@"(?:(?<address>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})(?: )(?<country>[A-Z]{1,2})(?:(?<!RU)\-)(?:[N](?!\-S)))");
+            Regex reProxies = new Regex(@"(?:(?<address>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})(?: )(?<country>[A-Z]{1,2})(?:(?<!RU)\-)(?:[N](?!\-S|!)))");
             foreach (Match m in reProxies.Matches(proxyPage))
             {
                 string address = m.Groups["address"].Value;
@@ -111,7 +112,8 @@ namespace WebParse
             try
             {
                 WebResponse wr = Connection.GetResponse("http://www.google.com", true, proxy);
-                return ((wr != null) && ((wr as HttpWebResponse).StatusCode == HttpStatusCode.OK)) ? true : false;
+                StreamReader sr = new StreamReader(wr.GetResponseStream());
+                return ((wr != null) && ((wr as HttpWebResponse).StatusCode == HttpStatusCode.OK) && (sr.ReadToEnd() != "")) ? true : false;
             }
             catch
             {

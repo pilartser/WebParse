@@ -32,7 +32,7 @@ namespace WebParse
         internal static HtmlDocument GetShowInfoDoc(string url)
         {
             HtmlDocument doc = GetDoc(url);
-            if (doc.DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[img]/div/p[@align=\"left\"]") != null) //Плашка "Залочено на территории РФ" в инфе сериала
+            if ((doc == null) || (doc.DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[img]/div/p[@align=\"left\"]") != null)) //Плашка "Залочено на территории РФ" в инфе сериала
             {
                 doc = GetDoc(url, true);
             }

@@ -22,17 +22,20 @@ namespace WebParse
             pl = new ProxyList();
             //HtmlDocument doc = Routines.GetShowInfoDoc("http://www.lostfilm.tv/browse.php?cat=119");
             //Console.WriteLine(doc.DocumentNode.InnerHtml);
-            
-            foreach (TVShow show in GetSerialList())
-            {
-                show.LoadInfo();
-                show.PrintInfo();
-            }
+
+            //foreach (LostFilmShow show in GetSerialList())
+            //{
+            //    show.LoadInfo();
+            //    show.PrintInfo();
+            //}
+            LostFilmShow show = new LostFilmShow(24, "BattleStar Galactica", "Звёздный крейсер Галактика");
+            show.LoadInfo();
+            show.PrintInfo();
             Console.WriteLine("It's ALL!!!");
             Console.ReadKey();
         }
 
-        static IEnumerable<TVShow> GetSerialList()
+        static IEnumerable<LostFilmShow> GetSerialList()
         {
             HtmlNode node = Connection.GetDoc(Constants.CONST_LOSTFILM_SERIAL_LIST).DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[@class=\"bb\"]");
             foreach (HtmlNode serial in node.SelectNodes("a"))
@@ -40,7 +43,7 @@ namespace WebParse
                 Int64 id = Routines.GetInt64(System.Web.HttpUtility.ParseQueryString(serial.GetAttributeValue("href", "").Replace("?", "&")).Get("cat"));
                 string NameOriginal = serial.SelectSingleNode("span").InnerText.Trim(new char[] {'(', ')'});
                 string NameTranslated = serial.SelectSingleNode("text()").InnerText;
-                yield return new TVShow(id, NameOriginal, NameTranslated);
+                yield return new LostFilmShow(id, NameOriginal, NameTranslated);
             }
         }
         static void GetSerialInfo(HtmlNode node)
@@ -72,11 +75,11 @@ namespace WebParse
                                 if (el != null)
                                 {
                                     DateTime dt;
-                                    return DateTime.TryParseExact(el.Value,
-                                    "ddd, dd MMM yyyy H:mm:ss zzz",
-                                    provider: System.Globalization.CultureInfo.CreateSpecificCulture("en-US"),
-                                    style: System.Globalization.DateTimeStyles.None,
-                                    result: out dt) ? dt : default(DateTime);
+                                    return DateTime.TryParseExact(el.Value, "ddd, dd MMM yyyy H:mm:ss zzz",
+                                                                    provider: System.Globalization.CultureInfo.CreateSpecificCulture("en-US"),
+                                                                    style: System.Globalization.DateTimeStyles.None,
+                                                                    result: out dt) ? 
+                                                    dt : default(DateTime);
                                 }
                             }
                             break;

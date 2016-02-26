@@ -9,46 +9,86 @@ using HtmlAgilityPack;
 
 namespace WebParse
 {
-    class TVShow
+    public enum LostFilmSeasonCategory
+    {
+        None,
+        Season,
+        Film
+    }
+
+    class LostFilmSeason
+    {
+        public LostFilmSeasonCategory Type;
+        public string Name;
+
+        public LostFilmSeason()
+        {
+            this.Type = LostFilmSeasonCategory.None;
+        }
+
+        public LostFilmSeason(HtmlNode row)
+        {
+            this.Type = LostFilmSeasonCategory.None;
+            HtmlNodeCollection nodes = row.SelectNodes("div/h2 | div");
+            if (nodes != null)
+            {
+                this.Type = (nodes.Count == 1) ? LostFilmSeasonCategory.Film : LostFilmSeasonCategory.Season;
+                this.Name = nodes.First().InnerText.Trim();
+            }
+        }
+
+        public void AddEpisode(HtmlNode row)
+        {
+            //
+        }
+
+        public void Print()
+        {
+            Console.WriteLine(String.Format("Раздел {0} тип {1}", this.Name, this.Type));
+        }
+    }
+
+    class LostFilmShow
     {
         public Int64 Id;
         public string NameOriginal;
         public string NameTranslated = "";
         public int ReliseYear = 0;
+        public Boolean isClose;
         public List<string> Countries;
         public List<string> Genres;
-        public Boolean isOpen;
+        public List<LostFilmSeason> Seasons;
 
-        public TVShow(Int64 idShow, string nameShow, string nameTranslated)
+        public LostFilmShow(Int64 idShow, string nameShow, string nameTranslated)
         {
             Id = idShow;
             NameOriginal = nameShow;
             NameTranslated = nameTranslated;
-            Countries = new List<string> {};
-            Genres = new List<string> {};
-            isOpen = true;
+            isClose = false;
+            Countries = new List<string> { };
+            Genres = new List<string> { };
+            Seasons = new List<LostFilmSeason> { };
         }
 
         public void LoadInfo()
         {
-            HtmlDocument doc = Connection.GetShowInfoDoc(String.Format("http://www.lostfilm.tv/browse.php?cat={0}", this.Id));
+            HtmlDocument doc = Connection.GetShowInfoDoc(String.Format(Constants.CONST_LOSTFILM_SERIAL_PAGE, this.Id));
             if (doc != null)
             {
                 try
                 {
                     HtmlNode node = doc.DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[img]");
-                    this.ReliseYear = Routines.GetInt(Constants.reParams["reliseYear"].Match(node.InnerHtml).Value);
-                    foreach (String country in Constants.reParams["countrySplit"].
-                                                Split(Constants.reParams["country"].Match(node.InnerHtml).Value).
-                                                Select(c => c.Trim()))
+                    if (node != null)
                     {
-                        this.Countries.Add(country);
-                    }
-                    foreach (String genre in Constants.reParams["genreSplit"].
-                                                Split(Constants.reParams["genre"].Match(node.InnerHtml).Value).
-                                                Select(g => g.Trim()).Where(s => (s != String.Empty)))
-                    {
-                        this.Genres.Add(genre);
+                        this.ReliseYear = Routines.GetInt(Constants.reParams["reliseYear"].Match(node.InnerHtml).Value);
+                        this.Countries = Constants.reParams["countrySplit"].
+                                                    Split(Constants.reParams["country"].Match(node.InnerHtml).Value).
+                                                    Select(c => c.Trim()).ToList();
+                        this.Genres = Constants.reParams["genreSplit"].
+                                                    Split(Constants.reParams["genre"].Match(node.InnerHtml).Value).
+                                                    Select(g => g.Trim().ToLower()).Where(s => (s != String.Empty)).ToList();
+                        this.isClose = (Constants.reParams["status"].Match(node.InnerHtml).Value.ToLower() != "закончен");
+                        LoadSeasons(doc.DocumentNode.SelectNodes("//div[@class=\"mid\"]/div[div/@class=\"t_row even\"]/div[@class=\"content\" or @class=\"t_row even\" or @class=\"t_row odd\"]"));
                     }
                 }
                 catch (Exception e)
@@ -58,19 +98,49 @@ namespace WebParse
             }
         }
 
+        private void LoadSeasons(HtmlNodeCollection rows)
+        {
+            LostFilmSeason season = null;
+            foreach (HtmlNode row in rows)
+            {
+                switch (row.GetAttributeValue("class", ""))
+                {
+                    case "content":
+                        if (season != null)
+                            this.Seasons.Add(season);
+                        season = new LostFilmSeason(row);
+                        //season.Print();
+                        break;
+                    case "t_row even":
+                    case "t_row odd":
+                        if (season != null)
+                            season.AddEpisode(row);
+                        break;
+                }
+            }
+            if (season != null)
+                this.Seasons.Add(season);
+        }
+
         public void PrintInfo()
         {
             Console.WriteLine(String.Format("ID: {0}\r\nName Original: {1}\r\nName Translated: {2}\r\nRelise Year: {3}",
-                                                this.Id, this.NameOriginal, this.NameTranslated, this.ReliseYear));
-            Console.Write(String.Format("Countries: {0}", (this.Countries.Count == 0)?"\r\n":""));
+                                                    this.Id, this.NameOriginal, this.NameTranslated, this.ReliseYear));
+            Console.Write(String.Format("Countries: {0}", (this.Countries.Count == 0) ? "\r\n" : ""));
             for (int i = 0; i < this.Countries.Count; i++)
             {
                 Console.WriteLine(String.Format("{0}{1}", "".PadLeft((i == 0) ? 0 : 11), this.Countries.ElementAt(i)));
             }
-            Console.Write(String.Format("Genres: {0}", (this.Genres.Count == 0)?"\r\n":""));
+            Console.Write(String.Format("Genres: {0}", (this.Genres.Count == 0) ? "\r\n" : ""));
             for (int i = 0; i < this.Genres.Count; i++)
             {
-                Console.WriteLine(String.Format("{0}\"{1}\"", "".PadLeft((i == 0) ? 0 : 8), this.Genres.ElementAt(i)));
+                Console.WriteLine(String.Format("{0}{1}", "".PadLeft((i == 0) ? 0 : 8), this.Genres.ElementAt(i)));
+            }
+            Console.WriteLine(String.Format("Status: {0}", this.isClose ? "close" : "open"));
+            Console.WriteLine("Seasons:");
+            foreach (LostFilmSeason season in this.Seasons)
+            {
+                season.Print();
             }
             Console.WriteLine("-----------------------");
         }
@@ -80,6 +150,7 @@ namespace WebParse
     class Constants
     {
         internal const string CONST_LOSTFILM_SERIAL_LIST = "http://www.lostfilm.tv/serials.php";
+        internal const string CONST_LOSTFILM_SERIAL_PAGE = "http://www.lostfilm.tv/browse.php?cat={0}";
         internal const string CONST_LOSTFILM_RSS = "http://www.lostfilm.tv/rssdd.xml";
         internal const string CONST_PROXY_LIST_TEMPLATE = "http://txt.proxyspy.net/proxy.txt";
         internal const string CONST_COUNTRIES_LIST = "http://www.geonames.org/countries/";

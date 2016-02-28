@@ -5,3 +5,10 @@ D:\Documents\Workspace\Test_projects\WebParse\WebParse\obj\x86\Debug\WebParse.pd
 D:\Documents\Workspace\Test_projects\WebParse\WebParse\bin\Debug\HtmlAgilityPack.dll
 D:\Documents\Workspace\Test_projects\WebParse\WebParse\obj\x86\Debug\WebParse.csprojResolveAssemblyReference.cache
 D:\Documents\Workspace\Test_projects\WebParse\WebParse\bin\Debug\WebParse.exe.config
+F:\Workspace\Test_projects\WebParse\WebParse\bin\Debug\WebParse.exe.config
+F:\Workspace\Test_projects\WebParse\WebParse\obj\x86\Debug\WebParse.exe
+F:\Workspace\Test_projects\WebParse\WebParse\obj\x86\Debug\WebParse.pdb
+F:\Workspace\Test_projects\WebParse\WebParse\bin\Debug\WebParse.exe
+F:\Workspace\Test_projects\WebParse\WebParse\bin\Debug\WebParse.pdb
+F:\Workspace\Test_projects\WebParse\WebParse\bin\Debug\HtmlAgilityPack.dll
+F:\Workspace\Test_projects\WebParse\WebParse\obj\x86\Debug\WebParse.csprojResolveAssemblyReference.cache

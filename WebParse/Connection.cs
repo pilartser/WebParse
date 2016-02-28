@@ -46,7 +46,7 @@ namespace WebParse
                 System.Net.WebRequest myRequest = WebRequest.Create(url);
                 if (isUseProxy)
                 {
-                    myRequest.Proxy = new WebProxy((proxy != "") ? proxy : Program.pl.GetCurrentAddress());
+                    myRequest.Proxy = new WebProxy((proxy != "") ? proxy : Program.Pl.GetCurrentAddress());
                 }
                 return myRequest.GetResponse();
             }

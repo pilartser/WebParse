@@ -10,15 +10,15 @@ namespace WebParse
 {
     class ProxyList
     {
-        private Dictionary<string, List<string>> dict;
-        private string curCountry;
-        private string curAddress;
+        private Dictionary<string, List<string>> _dict;
+        private string _curCountry;
+        private string _curAddress;
 
         public ProxyList()
         {
-            dict = new Dictionary<string, List<string>> { };
-            curCountry = "";
-            curAddress = "";
+            _dict = new Dictionary<string, List<string>> { };
+            _curCountry = "";
+            _curAddress = "";
             FillProxyList();
             SetCurrentAddress();
         }
@@ -26,17 +26,17 @@ namespace WebParse
         private void FillProxyList()
         {
             Console.WriteLine("Proxy list refreshed!");
-            String proxyPage = Connection.GetStreamString(Constants.CONST_PROXY_LIST_TEMPLATE);
+            String proxyPage = Connection.GetStreamString(Constants.ConstProxyListTemplate);
             Regex reProxies = new Regex(@"(?:(?<address>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})(?: )(?<country>[A-Z]{1,2})(?:(?<!RU)\-)(?:[N](?!\-S|!)))");
             foreach (Match m in reProxies.Matches(proxyPage))
             {
                 string address = m.Groups["address"].Value;
                 string country = m.Groups["country"].Value;
-                if (Constants.countries["EU"].Contains(country) || country == "US")
+                if (Constants.Countries["EU"].Contains(country) || country == "US")
                 {
-                    if (!dict.ContainsKey(country))
-                        dict.Add(country, new List<string> { });
-                    dict[country].Add(address);
+                    if (!_dict.ContainsKey(country))
+                        _dict.Add(country, new List<string> { });
+                    _dict[country].Add(address);
                 }
             }
             PrintProxyList();
@@ -45,11 +45,11 @@ namespace WebParse
         public void PrintProxyList()
         {
             int totalCount = 0;
-            foreach (string key in dict.Keys)
+            foreach (string key in _dict.Keys)
             {
-                Console.WriteLine(String.Format("{0} contains {1} addresses", key, dict[key].Count.ToString()));
-                totalCount += dict[key].Count;
-                foreach (string address in dict[key])
+                Console.WriteLine(String.Format("{0} contains {1} addresses", key, _dict[key].Count.ToString()));
+                totalCount += _dict[key].Count;
+                foreach (string address in _dict[key])
                 {
                     Console.WriteLine(address);
                 }
@@ -60,46 +60,46 @@ namespace WebParse
 
         private void SetCurrentAddress()
         {
-            if (dict.Keys.Count > 0)
+            if (_dict.Keys.Count > 0)
             {
-                if (dict.Keys.Contains("UA"))
-                    curCountry = "UA";
-                else if (dict.Keys.Contains("BY"))
-                    curCountry = "BY";
+                if (_dict.Keys.Contains("UA"))
+                    _curCountry = "UA";
+                else if (_dict.Keys.Contains("BY"))
+                    _curCountry = "BY";
                 else
-                    curCountry = dict.Keys.ElementAt(0);
+                    _curCountry = _dict.Keys.ElementAt(0);
             }
             else
-                curCountry = "";
-            if (curCountry != "")
-                curAddress = dict[curCountry].ElementAt(0);
+                _curCountry = "";
+            if (_curCountry != "")
+                _curAddress = _dict[_curCountry].ElementAt(0);
             else
-                curAddress = "";
+                _curAddress = "";
         }
 
         public string GetCurrentAddress()
         {
             int tryCount = 15;
-            while ((!CheckProxy(curAddress))&&(tryCount > 0))
+            while ((!CheckProxy(_curAddress))&&(tryCount > 0))
             {
-                Console.WriteLine(String.Format("Proxy {0} doesn't work!!!", curAddress));
+                Console.WriteLine(String.Format("Proxy {0} doesn't work!!!", _curAddress));
                 GetNextAddress();
                 tryCount--;
             }
             if (tryCount == 0)
                 return "";
             else
-                return curAddress;
+                return _curAddress;
         }
 
         private void GetNextAddress()
         {
-            if ((curCountry != "") && (curAddress != ""))
+            if ((_curCountry != "") && (_curAddress != ""))
             {
-                dict[curCountry].Remove(curAddress);
-                if (dict[curCountry].Count == 0)
-                    dict.Remove(curCountry);
-                if (dict.Keys.Count == 0)
+                _dict[_curCountry].Remove(_curAddress);
+                if (_dict[_curCountry].Count == 0)
+                    _dict.Remove(_curCountry);
+                if (_dict.Keys.Count == 0)
                     FillProxyList();
             }
             else

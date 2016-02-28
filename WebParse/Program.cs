@@ -14,12 +14,12 @@ namespace WebParse
 {
     class Program
     {
-        public static ProxyList pl;
+        public static ProxyList Pl;
 
         static void Main(string[] args)
         {
             //Console.WriteLine(Routines.GetProxyFromBitmap("http://hideme.ru/images/proxylist_port_16127288.gif"));
-            pl = new ProxyList();
+            Pl = new ProxyList();
             //HtmlDocument doc = Routines.GetShowInfoDoc("http://www.lostfilm.tv/browse.php?cat=119");
             //Console.WriteLine(doc.DocumentNode.InnerHtml);
 
@@ -37,22 +37,22 @@ namespace WebParse
 
         static IEnumerable<LostFilmShow> GetSerialList()
         {
-            HtmlNode node = Connection.GetDoc(Constants.CONST_LOSTFILM_SERIAL_LIST).DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[@class=\"bb\"]");
+            HtmlNode node = Connection.GetDoc(Constants.ConstLostfilmSerialList).DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[@class=\"bb\"]");
             foreach (HtmlNode serial in node.SelectNodes("a"))
             {
                 Int64 id = Routines.GetInt64(System.Web.HttpUtility.ParseQueryString(serial.GetAttributeValue("href", "").Replace("?", "&")).Get("cat"));
-                string NameOriginal = serial.SelectSingleNode("span").InnerText.Trim(new char[] {'(', ')'});
-                string NameTranslated = serial.SelectSingleNode("text()").InnerText;
-                yield return new LostFilmShow(id, NameOriginal, NameTranslated);
+                string nameOriginal = serial.SelectSingleNode("span").InnerText.Trim(new char[] {'(', ')'});
+                string nameTranslated = serial.SelectSingleNode("text()").InnerText;
+                yield return new LostFilmShow(id, nameOriginal, nameTranslated);
             }
         }
         static void GetSerialInfo(HtmlNode node)
         {
             Console.WriteLine(node.OuterHtml);
-            foreach (string key in Constants.reParams.Keys)
+            foreach (string key in Constants.ReParams.Keys)
             {
                 Console.WriteLine(key);
-                Console.WriteLine(Constants.reParams[key].Match(node.InnerHtml).Value.ToString());
+                Console.WriteLine(Constants.ReParams[key].Match(node.InnerHtml).Value.ToString());
             }
         }
 
@@ -60,7 +60,7 @@ namespace WebParse
 
         static DateTime GetLastDate()
         {
-            using (XmlReader reader = XmlReader.Create(Constants.CONST_LOSTFILM_RSS))
+            using (XmlReader reader = XmlReader.Create(Constants.ConstLostfilmRss))
             {
                 reader.MoveToContent();
                 // Parse the file and display each of the nodes. 

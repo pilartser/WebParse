@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.IO;
 using System.Net;
@@ -10,15 +8,14 @@ namespace WebParse
 {
     class Connection
     {
-        internal static HtmlDocument GetDoc(string url, Boolean isUseProxy = false)
+        internal static HtmlDocument GetDoc(string url, bool isUseProxy = false)
         {
-            HtmlDocument doc = new HtmlDocument();
-            doc.OptionWriteEmptyNodes = true;
-            string html = GetStreamString(url, isUseProxy);
+            var doc = new HtmlDocument {OptionWriteEmptyNodes = true};
+            var html = GetStreamString(url, isUseProxy);
             if (html != "")
             {
                 doc.LoadHtml(html);
-                foreach (HtmlNode brNode in doc.DocumentNode.SelectNodes("//br"))
+                foreach (var brNode in doc.DocumentNode.SelectNodes("//br"))
                 {
                     brNode.Remove();
                 }
@@ -31,7 +28,7 @@ namespace WebParse
 
         internal static HtmlDocument GetShowInfoDoc(string url)
         {
-            HtmlDocument doc = GetDoc(url);
+            var doc = GetDoc(url);
             if ((doc == null) || (doc.DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[img]/div/p[@align=\"left\"]") != null)) //Плашка "Залочено на территории РФ" в инфе сериала
             {
                 doc = GetDoc(url, true);
@@ -39,11 +36,11 @@ namespace WebParse
             return doc;
         }
 
-        internal static WebResponse GetResponse(string url, Boolean isUseProxy = false, string proxy = "")
+        internal static WebResponse GetResponse(string url, bool isUseProxy = false, string proxy = "")
         {
             try
             {
-                System.Net.WebRequest myRequest = WebRequest.Create(url);
+                var myRequest = WebRequest.Create(url);
                 if (isUseProxy)
                 {
                     myRequest.Proxy = new WebProxy((proxy != "") ? proxy : Program.Pl.GetCurrentAddress());
@@ -57,12 +54,12 @@ namespace WebParse
             }
         }
 
-        internal static Stream GetStream(string url, Boolean isUseProxy = false)
+        internal static Stream GetStream(string url, bool isUseProxy = false)
         {
             try
             {
-                WebResponse myResponse = GetResponse(url, isUseProxy);
-                return (myResponse != null) ? myResponse.GetResponseStream() : null;
+                var myResponse = GetResponse(url, isUseProxy);
+                return myResponse?.GetResponseStream();
             }
             catch (Exception e)
             {
@@ -73,9 +70,9 @@ namespace WebParse
 
         
 
-        internal static string GetStreamString(string url, Boolean isUseProxy = false)
+        internal static string GetStreamString(string url, bool isUseProxy = false)
         {
-            Stream str = GetStream(url, isUseProxy);
+            var str = GetStream(url, isUseProxy);
             try
             {
                 if (str != null)

@@ -23,7 +23,7 @@ namespace WebParse
 
         public LostFilmEpisode()
         {
-            
+            Num = "";
         }
     }
 
@@ -41,7 +41,7 @@ namespace WebParse
         public LostFilmSeason(HtmlNode row, string nameShowTranslated)
         {
             Type = LostFilmSeasonCategory.None;
-            HtmlNodeCollection nodes = row.SelectNodes("div/h2 | div");
+            var nodes = row.SelectNodes("div/h2 | div");
             if (nodes == null) return;
             Type = (nodes.Count == 1) ? LostFilmSeasonCategory.Film : LostFilmSeasonCategory.Season;
             Name = new Regex($@"(.+(?=\. {((Type == LostFilmSeasonCategory.Season)?"Сериал ":"") + nameShowTranslated}))").
@@ -50,8 +50,8 @@ namespace WebParse
 
         public void AddEpisode(HtmlNode row)
         {
-            HtmlNode node = row.SelectSingleNode("table/tr/td[@class=\"t_episode_title\"]");
-            Match m = Constants.ReParams["episode"].Match(node.GetAttributeValue("onClick", ""));
+            var node = row.SelectSingleNode("table/tr/td[@class=\"t_episode_title\"]");
+            var m = Constants.ReParams["episode"].Match(node.GetAttributeValue("onClick", ""));
             if (m.Success)
             {
                 Num = m.Groups["season"].Value;
@@ -89,11 +89,11 @@ namespace WebParse
 
         public void LoadInfo()
         {
-            HtmlDocument doc = Connection.GetShowInfoDoc(string.Format(Constants.ConstLostfilmSerialPage, Id));
+            var doc = Connection.GetShowInfoDoc(string.Format(Constants.ConstLostfilmSerialPage, Id));
             if (doc == null) return;
             try
             {
-                HtmlNode node = doc.DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[img]");
+                var node = doc.DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[img]");
                 if (node == null) return;
                 ReliseYear = Routines.GetInt(Constants.ReParams["reliseYear"].Match(node.InnerHtml).Value);
                 Countries = Constants.ReParams["countrySplit"].
@@ -114,7 +114,7 @@ namespace WebParse
         private void LoadSeasons(HtmlNodeCollection rows)
         {
             LostFilmSeason season = null;
-            foreach (HtmlNode row in rows)
+            foreach (var row in rows)
             {
                 switch (row.GetAttributeValue("class", ""))
                 {
@@ -138,18 +138,18 @@ namespace WebParse
             Console.WriteLine(
                 $"ID: {Id}\r\nName Original: {NameOriginal}\r\nName Translated: {NameTranslated}\r\nRelise Year: {ReliseYear}");
             Console.Write($"Countries: {((Countries.Count == 0) ? "\r\n" : "")}");
-            for (int i = 0; i < Countries.Count; i++)
+            for (var i = 0; i < Countries.Count; i++)
             {
                 Console.WriteLine($"{"".PadLeft((i == 0) ? 0 : 11)}{Countries.ElementAt(i)}");
             }
             Console.Write($"Genres: {((Genres.Count == 0) ? "\r\n" : "")}");
-            for (int i = 0; i < Genres.Count; i++)
+            for (var i = 0; i < Genres.Count; i++)
             {
                 Console.WriteLine($"{"".PadLeft((i == 0) ? 0 : 8)}{Genres.ElementAt(i)}");
             }
             Console.WriteLine($"Status: {(IsClose ? "close" : "open")}");
             Console.WriteLine("Seasons:");
-            foreach (LostFilmSeason season in Seasons)
+            foreach (var season in Seasons)
             {
                 season.Print();
             }

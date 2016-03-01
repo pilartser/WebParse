@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -16,7 +15,7 @@ namespace WebParse
 
         public ProxyList()
         {
-            _dict = new Dictionary<string, List<string>> { };
+            _dict = new Dictionary<string, List<string>>();
             _curCountry = "";
             _curAddress = "";
             FillProxyList();
@@ -26,36 +25,34 @@ namespace WebParse
         private void FillProxyList()
         {
             Console.WriteLine("Proxy list refreshed!");
-            String proxyPage = Connection.GetStreamString(Constants.ConstProxyListTemplate);
-            Regex reProxies = new Regex(@"(?:(?<address>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})(?: )(?<country>[A-Z]{1,2})(?:(?<!RU)\-)(?:[N](?!\-S|!)))");
+            var proxyPage = Connection.GetStreamString(Constants.ConstProxyListTemplate);
+            var reProxies = new Regex(@"(?:(?<address>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})(?: )(?<country>[A-Z]{1,2})(?:(?<!RU)\-)(?:[N](?!\-S|!)))");
             foreach (Match m in reProxies.Matches(proxyPage))
             {
-                string address = m.Groups["address"].Value;
-                string country = m.Groups["country"].Value;
-                if (Constants.Countries["EU"].Contains(country) || country == "US")
-                {
-                    if (!_dict.ContainsKey(country))
-                        _dict.Add(country, new List<string> { });
-                    _dict[country].Add(address);
-                }
+                var address = m.Groups["address"].Value;
+                var country = m.Groups["country"].Value;
+                if (!Constants.Countries["EU"].Contains(country) && country != "US") continue;
+                if (!_dict.ContainsKey(country))
+                    _dict.Add(country, new List<string>());
+                _dict[country].Add(address);
             }
             PrintProxyList();
         }
 
         public void PrintProxyList()
         {
-            int totalCount = 0;
-            foreach (string key in _dict.Keys)
+            var totalCount = 0;
+            foreach (var key in _dict.Keys)
             {
-                Console.WriteLine(String.Format("{0} contains {1} addresses", key, _dict[key].Count.ToString()));
+                Console.WriteLine($"{key} contains {_dict[key].Count.ToString()} addresses");
                 totalCount += _dict[key].Count;
-                foreach (string address in _dict[key])
+                foreach (var address in _dict[key])
                 {
                     Console.WriteLine(address);
                 }
                 Console.WriteLine();
             }
-            Console.WriteLine(String.Format("Total proxy count: {0} \r\n", totalCount));
+            Console.WriteLine($"Total proxy count: {totalCount} \r\n");
         }
 
         private void SetCurrentAddress()
@@ -71,18 +68,15 @@ namespace WebParse
             }
             else
                 _curCountry = "";
-            if (_curCountry != "")
-                _curAddress = _dict[_curCountry].ElementAt(0);
-            else
-                _curAddress = "";
+            _curAddress = _curCountry != "" ? _dict[_curCountry].ElementAt(0) : "";
         }
 
         public string GetCurrentAddress()
         {
-            int tryCount = 15;
+            var tryCount = 15;
             while ((!CheckProxy(_curAddress))&&(tryCount > 0))
             {
-                Console.WriteLine(String.Format("Proxy {0} doesn't work!!!", _curAddress));
+                Console.WriteLine($"Proxy {_curAddress} doesn't work!!!");
                 GetNextAddress();
                 tryCount--;
             }
@@ -107,18 +101,23 @@ namespace WebParse
             SetCurrentAddress();
         }
 
-        private Boolean CheckProxy(string proxy)
+        private static bool CheckProxy(string proxy)
         {
             try
             {
-                WebResponse wr = Connection.GetResponse("http://www.google.com", true, proxy);
-                StreamReader sr = new StreamReader(wr.GetResponseStream());
-                return ((wr != null) && ((wr as HttpWebResponse).StatusCode == HttpStatusCode.OK) && (sr.ReadToEnd() != "")) ? true : false;
+                var wr = (HttpWebResponse)Connection.GetResponse("http://www.google.com", true, proxy);
+                var s = wr.GetResponseStream();
+                if (s != null)
+                {
+                    return (wr.StatusCode == HttpStatusCode.OK) &&
+                           (new StreamReader(s).ReadToEnd() != "");
+                }
             }
             catch
             {
                 return false;
             }
+            return false;
         }
     }
 }

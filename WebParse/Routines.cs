@@ -12,7 +12,7 @@ namespace WebParse
     class Routines
     {
 
-        internal static Int64 GetInt64(object value)
+        internal static long GetInt64(object value)
         {
             if (!Equals(value, null))
             {
@@ -48,11 +48,11 @@ namespace WebParse
 
         internal static string GetProxyFromBitmap(string url)
         {
-            string result = "";
-            Bitmap proxyGif = new Bitmap(Connection.GetStream(url));
-            for (int i = 0; i < 5; i++)
+            var result = "";
+            var proxyGif = new Bitmap(Connection.GetStream(url));
+            for (var i = 0; i < 5; i++)
             {
-                using (Bitmap digit = proxyGif.Clone(new Rectangle(0 + i * 6, 3, 5, 8), proxyGif.PixelFormat))
+                using (var digit = proxyGif.Clone(new Rectangle(0 + i * 6, 3, 5, 8), proxyGif.PixelFormat))
                 {
                     result += Routines.GetDigitFromBitmap(digit);
                 }

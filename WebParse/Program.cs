@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using HtmlAgilityPack;
-using System.Net;
-using System.IO;
-using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
-using System.Drawing;
 
 namespace WebParse
 {
@@ -28,7 +22,7 @@ namespace WebParse
             //    show.LoadInfo();
             //    show.PrintInfo();
             //}
-            LostFilmShow show = new LostFilmShow(24, "BattleStar Galactica", "Звёздный крейсер Галактика");
+            var show = new LostFilmShow(24, "BattleStar Galactica", "Звёздный крейсер Галактика");
             show.LoadInfo();
             show.PrintInfo();
             Console.WriteLine("It's ALL!!!");
@@ -37,22 +31,22 @@ namespace WebParse
 
         static IEnumerable<LostFilmShow> GetSerialList()
         {
-            HtmlNode node = Connection.GetDoc(Constants.ConstLostfilmSerialList).DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[@class=\"bb\"]");
-            foreach (HtmlNode serial in node.SelectNodes("a"))
+            var node = Connection.GetDoc(Constants.ConstLostfilmSerialList).DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[@class=\"bb\"]");
+            foreach (var serial in node.SelectNodes("a"))
             {
-                Int64 id = Routines.GetInt64(System.Web.HttpUtility.ParseQueryString(serial.GetAttributeValue("href", "").Replace("?", "&")).Get("cat"));
-                string nameOriginal = serial.SelectSingleNode("span").InnerText.Trim(new char[] {'(', ')'});
-                string nameTranslated = serial.SelectSingleNode("text()").InnerText;
+                var id = Routines.GetInt64(System.Web.HttpUtility.ParseQueryString(serial.GetAttributeValue("href", "").Replace("?", "&")).Get("cat"));
+                var nameOriginal = serial.SelectSingleNode("span").InnerText.Trim(new char[] {'(', ')'});
+                var nameTranslated = serial.SelectSingleNode("text()").InnerText;
                 yield return new LostFilmShow(id, nameOriginal, nameTranslated);
             }
         }
         static void GetSerialInfo(HtmlNode node)
         {
             Console.WriteLine(node.OuterHtml);
-            foreach (string key in Constants.ReParams.Keys)
+            foreach (var key in Constants.ReParams.Keys)
             {
                 Console.WriteLine(key);
-                Console.WriteLine(Constants.ReParams[key].Match(node.InnerHtml).Value.ToString());
+                Console.WriteLine(Constants.ReParams[key].Match(node.InnerHtml).Value);
             }
         }
 
@@ -60,7 +54,7 @@ namespace WebParse
 
         static DateTime GetLastDate()
         {
-            using (XmlReader reader = XmlReader.Create(Constants.ConstLostfilmRss))
+            using (var reader = XmlReader.Create(Constants.ConstLostfilmRss))
             {
                 reader.MoveToContent();
                 // Parse the file and display each of the nodes. 
@@ -71,7 +65,7 @@ namespace WebParse
                         case XmlNodeType.Element:
                             if (reader.Name == "lastBuildDate")
                             {
-                                XElement el = XNode.ReadFrom(reader) as XElement;
+                                var el = XNode.ReadFrom(reader) as XElement;
                                 if (el != null)
                                 {
                                     DateTime dt;

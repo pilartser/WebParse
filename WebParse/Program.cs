@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using HtmlAgilityPack;
 using System.Xml;
 using System.Xml.Linq;
@@ -10,7 +11,7 @@ namespace WebParse
     {
         public static ProxyList Pl;
 
-        static void Main(string[] args)
+        static void Main()
         {
             //Console.WriteLine(Routines.GetProxyFromBitmap("http://hideme.ru/images/proxylist_port_16127288.gif"));
             Pl = new ProxyList();
@@ -32,14 +33,12 @@ namespace WebParse
         static IEnumerable<LostFilmShow> GetSerialList()
         {
             var node = Connection.GetDoc(Constants.ConstLostfilmSerialList).DocumentNode.SelectSingleNode("//div[@class=\"mid\"]/div[@class=\"bb\"]");
-            foreach (var serial in node.SelectNodes("a"))
-            {
-                var id = Routines.GetInt64(System.Web.HttpUtility.ParseQueryString(serial.GetAttributeValue("href", "").Replace("?", "&")).Get("cat"));
-                var nameOriginal = serial.SelectSingleNode("span").InnerText.Trim(new char[] {'(', ')'});
-                var nameTranslated = serial.SelectSingleNode("text()").InnerText;
-                yield return new LostFilmShow(id, nameOriginal, nameTranslated);
-            }
+            return node.SelectNodes("a").Select(
+                            serial => new LostFilmShow(Routines.GetInt64(System.Web.HttpUtility.ParseQueryString(serial.GetAttributeValue("href", "").Replace("?", "&")).Get("cat")),
+                                                        serial.SelectSingleNode("span").InnerText.Trim(new char[] { '(', ')' }), 
+                                                        serial.SelectSingleNode("text()").InnerText));
         }
+
         static void GetSerialInfo(HtmlNode node)
         {
             Console.WriteLine(node.OuterHtml);

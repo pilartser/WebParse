@@ -80,10 +80,7 @@ namespace WebParse
                 GetNextAddress();
                 tryCount--;
             }
-            if (tryCount == 0)
-                return "";
-            else
-                return _curAddress;
+            return tryCount == 0 ? "" : _curAddress;
         }
 
         private void GetNextAddress()

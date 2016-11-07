@@ -195,5 +195,17 @@ namespace WebParse
             {"genreSplit", new Regex(@"(?:(?:,)|(?:/)|(?:\.))")},
             {"episode", new Regex(@"(?:ShowAllReleases\('\d{1,4}',')(?<season>[\d\.]{1,6})(?:',')(?<episode>[\d-]{1,8})")}
         };
+
+        /*
+        http://awmproxy.com/freeproxy_XXXXXXXXXX.txt
+        http://proxy-list.org/russian/index.php
+        http://txt.proxyspy.net/proxy.txt
+        ~http://multiproxy.org/txt_all/proxy.txt
+        http://www.proxyserverprivacy.com/free-proxy-list.shtml
+        http://proxylife.org/proxy/http
+        http://nntime.com/proxy-updated-01.htm
+        http://socks24.ru/proxy/httpProxies.txt
+        http://socks24.ru/proxy/socksProxies.txt
+        */
     }
 }
